@@ -1,0 +1,14 @@
+python-dotenv
+pydantic
+pyyaml
+tqdm
+pandas
+numpy
+matplotlib
+scipy
+tenacity
+regex
+openai
+transformers
+accelerate
+torch

@@ -1,0 +1,23 @@
+variation: baseline
+
+model:
+  backend: openai  # or "huggingface"
+  model_name: gpt-4o-mini
+  # device: cuda  # for HF models
+
+data:
+  task: addition  # or "multiplication" or "mixed"
+  digits: 2
+  n_samples: 1000
+  train_ratio: 0.7
+
+experiment:
+  k_values: [1, 2, 4, 8, 16]
+  attacker_strengths: [64, 256, 512, 1024, 2048]
+  attacker_goals: ["output_42", "answer_plus_1"]
+  max_tokens: 100
+  # deliberate_steps: null  # optional
+
+seed: 42
+output_dir: results
+
