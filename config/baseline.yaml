@@ -1,8 +1,8 @@
 variation: baseline
 
 model:
-  backend: openai  # or "huggingface"
-  model_name: gpt-4o-mini
+  backend: huggingface  # or "huggingface"
+  model_name: microsoft/Phi-3-mini-4k-instruct
   # device: cuda  # for HF models
 
 data:

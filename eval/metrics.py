@@ -1,8 +1,5 @@
 """Evaluation metrics."""
 from typing import List, Optional
-import numpy as np
-
-from ..defense.voting import majority_vote
 
 
 def attack_success_rate(
