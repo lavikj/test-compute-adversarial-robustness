@@ -4,9 +4,7 @@ import yaml
 import os
 from dotenv import load_dotenv
 
-from models.openai_client import OpenAIClient
-from models.hf_client import HuggingFaceClient
-from data.gen_math import sample_add, sample_mul, train_test_split
+from data.gen_math import sample_add, sample_mul, sample_math, train_test_split
 from eval.grid_runner import run_grid_experiment
 from eval.plotting import generate_plots
 
@@ -22,11 +20,15 @@ def create_model(config: dict):
     backend = config["model"]["backend"]
     
     if backend == "openai":
+        # Lazy import to avoid transformers dependency when using OpenAI
+        from models.openai_client import OpenAIClient
         return OpenAIClient(
             model_name=config["model"]["model_name"],
             api_key=os.getenv("OPENAI_API_KEY"),
         )
     elif backend == "huggingface":
+        # Lazy import to avoid OpenAI dependency when using HuggingFace
+        from models.hf_client import HuggingFaceClient
         return HuggingFaceClient(
             model_name=config["model"]["model_name"],
             device=config["model"].get("device"),
@@ -72,6 +74,8 @@ def main():
         problems = sample_add(n_samples, digits=digits, seed=seed)
     elif data_config.get("task") == "multiplication":
         problems = sample_mul(n_samples, digits=digits, seed=seed)
+    elif data_config.get("task") == "math":
+        problems = sample_math(n_samples, seed=seed)
     else:
         # Default: mix
         add_problems = sample_add(n_samples // 2, digits=digits, seed=seed)

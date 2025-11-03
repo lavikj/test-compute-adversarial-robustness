@@ -38,29 +38,39 @@ class OpenAIClient(LLMClient):
         temperature: float = 0.0,
         stop: Optional[list[str]] = None,
         deliberate_steps: Optional[int] = None,
+        reasoning_effort: Optional[str] = None,
     ) -> str:
         """Generate using OpenAI API."""
-        # For o1/o3 models, use reasoning API if deliberate_steps is specified
-        if self._supports_deliberate and deliberate_steps:
-            # Map steps to effort level
-            if deliberate_steps <= 3:
-                effort = "low"
-            elif deliberate_steps <= 7:
-                effort = "medium"
-            else:
-                effort = "high"
+        # o1/o3 models use different API parameters
+        if self._supports_deliberate:
+            # o1/o3 models:
+            # - Don't support temperature or stop parameters
+            # - Don't support system messages
+            # - Use internal reasoning tokens
+            # - Support reasoning_effort: "low", "medium", "high"
             
-            # Note: o1 models use different API structure
-            # For now, we'll use standard chat completion with extended max_tokens
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=max_tokens * deliberate_steps if deliberate_steps else max_tokens,
-                temperature=temperature,
-                stop=stop,
-            )
+            reasoning_tokens = max(max_tokens * 2, 500)  # Reduced for speed
+            
+            # Build kwargs
+            kwargs = {
+                "model": self.model_name,
+                "messages": [{"role": "user", "content": prompt}],
+                "max_completion_tokens": reasoning_tokens,
+            }
+            
+            # Add reasoning_effort if specified (o1 models only)
+            if reasoning_effort and reasoning_effort in ["low", "medium", "high"]:
+                kwargs["reasoning_effort"] = reasoning_effort
+                print(f"  [Using reasoning_effort={reasoning_effort}]", flush=True)
+            
+            try:
+                response = self.client.chat.completions.create(**kwargs)
+            except TypeError:
+                # Fallback: try without max_completion_tokens
+                del kwargs["max_completion_tokens"]
+                response = self.client.chat.completions.create(**kwargs)
         else:
-            # Standard chat completion
+            # Standard chat completion for non-o1 models
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[{"role": "user", "content": prompt}],

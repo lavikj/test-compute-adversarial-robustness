@@ -1,0 +1,28 @@
+variation: figure2
+
+model:
+  backend: huggingface  # or "openai"
+  model_name: microsoft/Phi-3-mini-4k-instruct
+  # device: cuda  # for HF models
+
+data:
+  n_samples: 100  # Number of test samples per condition
+  seed: 42
+
+experiment:
+  # Log-scale values for k (inference compute)
+  k_values: [316, 1000, 3162, 10000]  # 10^2.5, 10^3, 10^3.5, 10^4
+  
+  # Log-scale values for attacker strength (tokens)
+  attacker_strengths: [316, 1000, 3162, 10000]
+  
+  # Three tasks (rows in Figure 2)
+  tasks: [addition, multiplication, math]
+  
+  # Three goals (columns in Figure 2)
+  attacker_goals: [output_42, answer_plus_1, answer_times_7]
+  
+  max_tokens: 100
+
+output_dir: results
+
